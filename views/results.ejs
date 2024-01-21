@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Performance Results</title>
+</head>
+<body>
+    <h1>Performance Results for <%= url %></h1>
+    <ul>
+        <% for (let key in performanceTiming) { %>
+            <li><%= key %>: <%= performanceTiming[key] %></li>
+        <% } %>
+    </ul>
+</body>
+</html>
