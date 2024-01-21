@@ -2,13 +2,49 @@
 <html>
 <head>
     <title>Performance Results</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <h1>Performance Results for <%= url %></h1>
-    <ul>
-        <% for (let key in performanceTiming) { %>
-            <li><%= key %>: <%= performanceTiming[key] %></li>
-        <% } %>
-    </ul>
+    <canvas id="chart"></canvas>
+    <script>
+        const ctx = document.getElementById('chart').getContext('2d');
+        const navigationStart = <%= performanceTiming.navigationStart %>;
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Navigation Start', 'Response Start', 'Response End', 'Dom Complete'],
+                datasets: [{
+                    label: 'Time (ms)',
+                    data: [
+                        <%= performanceTiming.navigationStart %>,   // navigationStart
+                        <%= performanceTiming.responseStart %>,     // responseStart
+                        <%= performanceTiming.responseEnd %>,       // responseEnd
+                        <%= performanceTiming.domComplete %>        // domComplete
+                    ],
+                    backgroundColor: [ 
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 </html>

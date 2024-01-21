@@ -13,10 +13,27 @@ app.get('/measure', async (req, res) => {
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
     await page.goto(`https://${url}`);
-    const performanceTiming = JSON.parse(
+    let performanceTiming = JSON.parse(
         await page.evaluate(() => JSON.stringify(window.performance.timing))
     );
     await browser.close();
+
+    // Ensure all necessary properties are present
+    const requiredProperties = ['navigationStart', 'responseStart', 'responseEnd', 'domComplete'];
+    for (const prop of requiredProperties) {
+        if (!performanceTiming.hasOwnProperty(prop)) {
+            performanceTiming[prop] = 0;
+        }
+    }
+
+    // Calculate relative times
+    const navigationStart = performanceTiming.navigationStart;
+    performanceTiming = {
+        navigationStart: 0,
+        responseStart: performanceTiming.responseStart - navigationStart,
+        responseEnd: performanceTiming.responseEnd - navigationStart,
+        domComplete: performanceTiming.domComplete - navigationStart
+    };
 
     res.render('results', { url, performanceTiming });
 });
