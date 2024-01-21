@@ -1,25 +1,24 @@
-const axios = require('axios');
-const now = require('performance-now');
-const readline = require('readline');
+const puppeteer = require('puppeteer');
+const express = require('express');
+const app = express();
 
-const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
+app.set('view engine', 'ejs');
+
+app.get('/', (req, res) => {
+    res.render('index');
 });
 
-const measurePerformance = async (url) => {
-    try {
-        const start = now();
-        await axios.get(`https://${url}`);
-        const end = now();
-        const duration = (end - start).toFixed(3);
-        console.log(`Time taken to load ${url}: ${duration}ms`);
-    } catch (error) {
-        console.error(`Error loading ${url}: ${error.message}`);
-    }
-}
+app.get('/measure', async (req, res) => {
+    const url = req.query.url;
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    await page.goto(`https://${url}`);
+    const performanceTiming = JSON.parse(
+        await page.evaluate(() => JSON.stringify(window.performance.timing))
+    );
+    await browser.close();
 
-rl.question('Please enter a domain: ', (url) => {
-    measurePerformance(url);
-    rl.close();
+    res.render('results', { url, performanceTiming });
 });
+
+app.listen(3000, () => console.log('Server is running on port 3000'));
